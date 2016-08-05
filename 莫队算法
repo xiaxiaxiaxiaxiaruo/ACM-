@@ -1,0 +1,292 @@
+区间问题 
+暴力解法＋离线处理
+
+题目传送门：小Z的袜子
+
+#include <iostream>
+#include<cstring>
+#include<algorithm>
+#include<cmath>
+#include <cstdio>
+using namespace std;
+#define maxn 50010
+typedef long long ll;
+int n,m;
+int a[maxn]={0};
+int num[maxn];
+int unit;
+struct  Node{
+    int l,r;
+    int id;
+    friend bool operator <(Node a,Node b){
+        if(a.l /unit==b.l/unit)return a.r<b.r;
+        else return a.l/unit<b.l/unit;
+    }
+}node[maxn];
+struct anode{
+    ll ans1;
+    ll ans2;
+    ll gcd(ll a,ll b){
+        ll r;
+        while(b){
+            r=a%b;
+            a=b;
+            b=r;
+        }
+        return a;
+    }
+    void reduce(){
+        ll r=gcd(ans2, ans1);
+        ans1/=r;ans2/=r;
+    }
+}ans[maxn];
+
+void work(){
+    ll temp=0;
+    memset(num, 0, sizeof(num));
+    int L=1;
+    int R=0;
+    for(int i=0;i<m;i++){
+        int r=node[i].r;
+        int l=node[i].l;
+        int id=node[i].id;
+        while(R<r){
+            R++;
+            temp-=(ll)num[a[R]]*num[a[R]];
+            num[a[R]]++;
+            temp+=(ll)num[a[R]]*num[a[R]];
+        }
+        while(R>r){
+            temp-=(ll)num[a[R]]*num[a[R]];
+            num[a[R]]--;
+            temp+=(ll)num[a[R]]*num[a[R]];
+            R--;
+        }
+        while(L<l){
+            temp -= (long long)num[a[L]]*num[a[L]];
+            num[a[L]]--;
+            temp += (long long)num[a[L]]*num[a[L]];
+            L++;
+        }
+        while(L>l){
+            L--;
+            temp -= (long long)num[a[L]]*num[a[L]];
+            num[a[L]]++;
+            temp += (long long)num[a[L]]*num[a[L]];
+        }
+        ans[id].ans1=temp-(r-l+1);
+        ans[id].ans2=(ll)(r-l+1)*(r-l);
+        ans[id].reduce();
+    }
+}
+int main(){
+    while(cin>>n>>m){
+        for(int i=1;i<=n;i++)
+            scanf("%d",a+i);
+        for(int i=0;i<m;i++){
+            node[i].id=i;
+            scanf("%d%d",&node[i].l,&node[i].r);
+
+        }
+         unit=sqrt(n);
+        sort(node,node+m);
+        work();
+        for(int i=0;i<m;i++){
+            printf("%lld/%lld\n",ans[i].ans1,ans[i].ans2);
+        }
+    }
+    return 0;
+}
+
+
+#include <iostream>
+#include<cstring>
+#include<algorithm>
+#include<cmath>
+#include <cstdio>
+using namespace std;
+#define maxn 50010
+typedef long long ll;
+int n,m;
+int a[maxn]={0};
+int num[maxn];
+int unit;
+struct  Node{
+    int l,r;
+    int id;
+    friend bool operator <(Node a,Node b){
+        if(a.l /unit==b.l/unit)return a.r<b.r;
+        else return a.l/unit<b.l/unit;
+    }
+}node[maxn];
+struct anode{
+    ll ans1;
+    ll ans2;
+    ll gcd(ll a,ll b){
+        ll r;
+        while(b){
+            r=a%b;
+            a=b;
+            b=r;
+        }
+        return a;
+    }
+    void reduce(){
+        ll r=gcd(ans2, ans1);
+        ans1/=r;ans2/=r;
+    }
+}ans[maxn];
+//莫队算法
+ll temp=0;
+void ad(int pos){//需根据暴力思路修改
+    temp-=(ll)num[a[pos]]*num[a[pos]];//
+    num[a[pos]]++;
+    temp+=(ll)num[a[pos]]*num[a[pos]];//
+
+}
+void remove(int pos){//
+    temp-=(ll)num[a[pos]]*num[a[pos]];
+    num[a[pos]]--;
+    temp+=(ll)num[a[pos]]*num[a[pos]];
+}
+
+void work(){
+
+    memset(num, 0, sizeof(num));
+    int L=1;
+    int R=0;
+    for(int i=0;i<m;i++){
+        int r=node[i].r;
+        int l=node[i].l;
+        int id=node[i].id;
+        while(R<r){
+            R++;
+            ad(R);
+        }
+        while(R>r){
+            remove(R);
+            R--;
+        }
+        while(L<l){
+            remove(L);
+            L++;
+        }
+        while(L>l){
+            L--;
+            ad(L);
+        }
+        ans[id].ans1=temp-(r-l+1);
+        ans[id].ans2=(ll)(r-l+1)*(r-l);
+        ans[id].reduce();
+    }
+}
+int main(){
+    while(cin>>n>>m){
+        for(int i=1;i<=n;i++)
+            scanf("%d",a+i);
+        for(int i=0;i<m;i++){
+            node[i].id=i;
+            scanf("%d%d",&node[i].l,&node[i].r);
+
+        }
+         unit=sqrt(n);
+        sort(node,node+m);
+        work();
+        for(int i=0;i<m;i++){
+            printf("%lld/%lld\n",ans[i].ans1,ans[i].ans2);
+        }
+    }
+    return 0;
+}
+
+
+HDU4638 Group
+
+思路分析 
+t数组初始化为0，将L－R区间的数ai对应于t［ai］＝1； 
+当其左右都为0时说明是新的一段，temp+1；（连续多个1为一个段） 
+当其左右都为1时说明其连接起来原先的两端，变为了一段，temp－1； 
+同理，当t［ai］变为0时要考虑这两种变化
+
+#include <iostream>
+#include<cstring>
+#include<algorithm>
+#include<cmath>
+#include <cstdio>
+using namespace std;
+#define maxn 100010
+
+int n,m;
+int a[maxn];
+int t[maxn];
+int unit;
+struct node{
+    int l,r;
+    int order;
+    friend bool operator <(node a,node b){
+        if(a.l/unit==b.l/unit)return a.r<b.r;
+        else return a.l/unit<b.l/unit;
+    }
+}q[maxn];
+int ans[maxn];
+
+int temp=0;
+void ad(int pos){
+    int i=a[pos];
+    t[i]=1;
+    if(t[i-1]&&t[i+1])temp--;
+    if(!t[i-1]&&!t[i+1])temp++;
+}
+void remove(int pos){
+    int i=a[pos];
+    t[i]=0;
+    if(t[i-1]&&t[i+1])temp++;
+    if(!t[i-1]&&!t[i+1])temp--;
+}
+
+void work(){
+    int L=1;
+    int R=0;
+    temp=0;
+    memset(t,0,sizeof(t));
+    for(int i=0;i<m;i++){
+        int l=q[i].l;
+        int r=q[i].r;
+        int order=q[i].order;
+        while(R<r){
+            R++;
+            ad(R);
+        }
+        while(R>r){
+            remove(R);
+            R--;
+        }
+        while(L<l){
+            remove(L);
+            L++;
+        }
+        while(L>l){
+            L--;
+            ad(L);
+        }
+        ans[order]=temp;
+    }
+}
+int main(){
+    int t;
+    cin>>t;
+    while(t--){
+        cin>>n>>m;
+        unit=sqrt(n);
+        for(int i=1;i<=n;i++)scanf("%d",a+i);
+        for(int i=0;i<m;i++){
+            q[i].order=i;
+            scanf("%d%d",&q[i].l,&q[i].r);
+        }
+        sort(q,q+m);
+        work();
+        for(int i=0;i<m;i++)cout<<ans[i]<<endl;
+    }
+    return 0;
+}
+

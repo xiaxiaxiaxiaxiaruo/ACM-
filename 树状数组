@@ -1,0 +1,249 @@
+#HDU1556 Color the ball
+###题意解读
+
+ - 区间a到b更新
+ -转换，左端点＋1，求和时不影响左端点左边，但右边的点求和都＋1；右端点右边－1，消除对右端点右边的点求和时的影响。
+
+```
+#include<iostream>
+#include<cstdio>
+#include<vector>
+#include<string>
+#include<cstring>
+#include<algorithm>
+using namespace std;
+
+int c[100010];
+int n;
+int lowbit(int x){
+    return x&-x;
+}
+
+void modify(int pos,int val){
+    while(pos<=n){//n-->b;
+        c[pos]+=val;
+        pos+=lowbit(pos);
+    }
+}
+
+int getr(int pos){
+    int sum=0;
+    while(pos>0){
+        sum+=c[pos];
+        pos-=lowbit(pos);
+    }
+    return sum;
+}
+int main(){
+    int a,b;
+    while(cin>>n,n){
+        memset(c,0, sizeof(c));
+        for(int i=0;i<n;i++){
+            scanf("%d%d",&a,&b);
+            modify(a,1);
+            modify(b+1, -1);
+        }
+        for(int i=1;i<=n;i++){
+            printf("%d%c",getr(i)," \n"[i==n]);
+        }
+    }
+    return 0;
+}
+```
+#HDU1349 Minimum Inversion Number
+###分析
+
+ - 树状数组求逆序数（从右往左扫，已存在的比起小的数的个数即为其逆序数）
+ - 树状数组没有0下标，需要处理
+ - 第一个数的逆序数为比其小的数的个数，
+ - 将其放在最后时整个序列的逆序和增加了 比其大的数的个数 个；
+
+```
+#include<iostream>
+#include<cstdio>
+#include<vector>
+#include<string>
+#include<cstring>
+#include<algorithm>
+using namespace std;
+int n;
+int c[5010];
+int lowBit(int x){
+    return x&-x;
+}
+void modify(int pos,int val){
+    while(pos<=n){
+        c[pos]+=val;
+        pos+=lowBit(pos);
+    }
+}
+int getSum(int pos){
+    int sum=0;
+    while(pos>0){
+        sum+=c[pos];
+        pos-=lowBit(pos);
+    }
+    return sum;
+}
+int main(){
+    int a[5010];
+    int ans;
+    int minAns;
+    while(cin>>n){
+       // cout<<"n "<<n<<endl;
+        ans=0;
+        memset(c, 0, sizeof(c));
+        for(int i=0;i<n;i++){
+            scanf("%d",a+i);
+        }
+        //cout<<"A";
+        for(int i=n-1;i>=0;i--){
+            ans+=getSum(a[i]+1);
+            modify(a[i]+1,1);//树状数组从1开始，没有0；
+        }
+        //cout<<"B";
+        minAns=ans;
+        for(int i=0;i<n-1;i++){
+            ans=ans-a[i]+(n-1-a[i]);//ai后面有ai个比其小的数，ai放在最后其前面有n-1-ai个比其大的数
+            minAns=ans<minAns?ans:minAns;
+        }
+        cout<<minAns<<endl;
+        
+    }
+    return 0;
+}
+```
+
+#HDU 1166 敌兵布阵
+
+```
+#include<iostream>
+#include<cstdio>
+#include<vector>
+#include<string>
+#include<cstring>
+#include<algorithm>
+#define maxn 50010
+using namespace std;
+int n;
+int c[maxn];
+int lowBit(int x){
+    return x&-x;
+}
+void modify(int pos,int val){
+    while(pos<=n){
+        c[pos]+=val;
+        pos+=lowBit(pos);
+    }
+}
+int getSum(int pos){
+    int sum=0;
+    while(pos>0){
+        sum+=c[pos];
+        pos-=lowBit(pos);
+    }
+    return sum;
+}
+void f(){
+    int a[maxn];
+    memset(c,0,sizeof(c));
+    cin>>n;
+    for(int i=1;i<=n;i++){
+        scanf("%d",a+i);
+        modify(i,a[i]);
+    }
+    string s;
+    int x,y;
+    while(cin>>s,s!="End"){
+        if(s=="Query"){
+            scanf("%d%d",&x,&y);
+            printf("%d\n",getSum(y)-getSum(x-1));
+        }
+        else if(s=="Add"){
+            scanf("%d%d",&x,&y);
+            modify(x, y);
+        }
+        else if(s=="Sub"){
+            scanf("%d%d",&x,&y);
+            modify(x, -y);
+        }
+    }
+}
+
+int main(){
+    int t;
+    cin>>t;
+    int i=0;
+    while(i++<t){
+        printf("Case %d:\n",i);
+        f();
+    }
+    return 0;
+}
+
+```
+
+#HDU4267
+
+```
+#include<iostream>
+#include<cstdio>
+#include<vector>
+#include<string>
+#include<cstring>
+#include<algorithm>
+#define maxn 50010
+using namespace std;
+//HDU4267多个树状数组
+int n,m;
+int c[12][12][maxn];
+int lowBit(int x){
+    return x&-x;
+}
+void modify(int k,int s,int pos,int val){
+    while(pos<n){／／因为这里少了“＝”，所以一直wrong
+        c[k][s][pos]+=val;
+        pos+=lowBit(pos);
+    }
+}
+int getR(int k,int s,int pos){
+    int sum=0;
+    while(pos>0){
+        sum+=c[k][s][pos];
+        pos-=lowBit(pos);
+    }
+    return sum;
+}
+int main(){
+    int num[maxn];
+    while (cin>>n) {
+        memset(c,0,sizeof(c));
+        for(int i=1;i<=n;i++)scanf("%d",num+i);
+        cin>>m;
+        int q,a,b,k,val;
+        for(int i=0;i<m;i++){
+            scanf("%d",&q);
+            if(q==1){
+                scanf("%d%d%d%d",&a,&b,&k,&val);
+                a--;
+                b--;
+                int s=a%k;
+                int x=(b-a)/k;
+                //x=a+x*k;
+                modify(k,s,a/k+1,val);
+                modify(k,s,a/k+x+2,-val);
+            }
+            else{
+                scanf("%d",&a);
+                int sum=num[a];
+                a--;
+                for(int k=1;k<=10;k++){
+                    sum+=getR(k,a%k,a/k+1);
+                }
+                printf("%d\n",sum);
+            }
+        }
+    }
+    return 0;
+}
+```

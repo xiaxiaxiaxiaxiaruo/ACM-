@@ -1,0 +1,154 @@
+//求割点和桥，求SCC等
+
+//无向图 求桥 带重边处理
+const int maxn=1010;
+struct Edge{//前向星存储边
+    int to;
+    int net;
+    int w;
+}edge[maxn*maxn]; //边结点
+
+int tot=0; //计数
+int head[maxn];
+
+void addEdge(int a,int b, int c){
+    edge[tot].to=b;
+    edge[tot].w=c;
+    edge[tot].net=head[a];
+    head[a]=tot++;
+}
+
+int n,m,dfn[maxn],low[maxn],sta[maxn],col[maxn];
+int tt,sum,scc,top;
+
+void tarjan(int u,int fa){
+    dfn[u]=low[u]=++tt;//时间戳
+    sta[++top]=u;//入栈
+    int cnt=0;
+    
+    for(int i=head[u];i;i=edge[i].net){
+        int v=edge[i].to;
+        if(!dfn[v]){
+            sum++;
+            tarjan(v, u);
+            low[u]=min(low[v],low[u]);
+        }
+        else if(fa==v){
+            if(cnt)low[u]=min(low[u],dfn[v]); //重边
+            cnt++;
+        }
+        else low[u]=min(low[u],dfn[v]);
+    }
+    
+    if(dfn[u]==low[u]){
+        int x;
+        scc++;
+        do{
+            x=sta[top--];
+            col[x]=scc;
+            
+        }while(x!=u);
+    }
+    
+}
+
+int main(){
+    int a,b,w;
+    int ans;
+    while(cin>>n>>m){
+        if(!(n||m))break;
+        //init
+        memset(dfn, 0, sizeof(dfn));
+        memset(low, 0, sizeof(low));
+        memset(col, 0, sizeof(col));
+        memset(head, 0, sizeof(head));
+        tot = sum = 1;
+        tt = scc = top = 0;
+        ans = 10010;
+        
+        while(m--){
+            cin>>a>>b>>w;
+            addEdge(a, b, w);
+            addEdge(b, a, w);
+        }
+        tarjan(1,1);
+        
+        if(sum<n) cout<<0<<endl; //不连通
+        else{
+            for(int i=1;i<=n;++i){
+                for(int j=head[i];j;j=edge[j].net){
+                    int v=edge[j].to;
+                    if(col[i]!=col[v])ans=min(ans,edge[j].w); //不属于同一个SCC，则i-v为桥，更新桥的最小权值
+                }
+            }
+            if(ans==10010)cout<<-1<<endl;
+            else if(ans==0)cout<<1<<endl;
+            else cout<<ans<<endl;
+        }
+        
+    }
+    return 0;
+}
+
+//有向图 求scc
+
+void tarjan(int u){
+    pre[u]=lowlink[u]=++cnt;
+    sta[top++]=u;
+    insta[u]=1;
+    int v;
+    for(int i=head[u];i;i=Edge[i].next){
+        v=Edge[i].to;
+        if(!pre[v]){
+            tarjan(v);
+            lowlink[u]=min(lowlink[u],lowlink[v]);
+        }
+        else if (insta[v]){
+            lowlink[u]=min(pre[v],lowlink[u]);
+        }
+    }
+    if(lowlink[u]==pre[u]){
+        scnt++;
+        int tmp;
+        do{
+            tmp=sta[--top];
+            insta[tmp]=0;//
+            id[tmp]=scnt;
+        }while (tmp!=u);
+    }
+}
+//
+
+int main(){
+    int n,m;
+    int a,b;
+    cin>>n>>m;
+    for(int i=0;i<m;i++){
+        cin>>a>>b;
+        addEdge(a, b, 0);
+    }
+    tarjan(1);
+    for(int i=1;i<=n;i++)cout<<id[i]<<" "; cout<<endl;
+    for(int i=1;i<=n;i++)cout<<pre[i]<<" ";cout<<endl;
+    for(int i=1;i<=n;i++)cout<<lowlink[i]<<" ";cout<<endl;
+    return 0;
+}
+
+/*
+//换种存储方式vector
+const int N=1010;
+struct Enode{
+    int v;
+    int w;
+    Enode(){
+    }
+    Enode(int b,int c):v(b),w(c){};
+};
+vector<Enode> Edge[N];
+void addEdge(int a,int b,int c){
+    Edge[a].push_back(Enode(b,c));
+}
+int main(){
+    return 0;
+}
+*/

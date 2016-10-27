@@ -12,28 +12,26 @@ using namespace std;
 const int N=100000+5;
 
 struct Mine{
-	int x,y,d;
-	int id;
-	Mine(){
-	};
-	Mine(int x,int y,int d,int id):x(x),y(y),d(d),id(id){
-	};
+    int x,y,d;
+    Mine(){
+    };
+    Mine(int x,int y,int d):x(x),y(y),d(d){
+    };
 }mines[N];
 
 struct node{
-	int y;
-	int d;
-	int id;
-	node(){
-	};
-	node(int y):y(y){
-	};
-	node(int y,int d,int id):y(y),d(d),id(id){
-	};
-	friend bool operator < (node a,node b){
-		return a.y<b.y;
-	};
-
+    int y;
+    int id;
+    node(){
+    };
+    node(int y):y(y){
+    };
+    node(int y,int id):y(y),id(id){
+    };
+    friend bool operator < (node a,node b){
+        return a.y<b.y;
+    };
+    
 };
 bool exist[N];
 int n,m;
@@ -41,83 +39,91 @@ map<int,int>mpx;
 vector<int>xi;
 multiset<node> s[N];
 void init(){
-	memset(exist,true,sizeof exist);
-	xi.clear();
-	for(int i=0;i<=n;++i)
-	mpx.clear();
-	
+    memset(exist,true,sizeof exist);
+    xi.clear();
+    for(int i=0;i<=n;++i)
+        mpx.clear();
+    
 }
 
-void work(int id){
-	queue<node> q;
-	map<int,int>::iterator it;
+void work(int cur){
+    queue<int>Q;
+    Q.push(cur);
+    int ans=0;
+    exist[cur]=false;
+    int tmp;//当前要引爆的点
+    int lx,rx;
+    int dy;//当dx确定后剩余在y轴上的范围
+    int ly,ry;
+    multiset<node> ::iterator l,r,it;
+    while (!Q.empty()) {
+        tmp=Q.front();Q.pop();
+        ans++;//
+       // printf("now to boom:id=%d\n",tmp);
+        lx=mines[tmp].x-mines[tmp].d;
+        rx=mines[tmp].x+mines[tmp].d;
+       // printf("x= %d d= %d\n",mines[tmp].x,mines[tmp].d);
 
-	q.push(node(mines[id].y,mines[id].d,mines[id].id));
-	int ans=0;
-
-	int l,r,dy;
-	multiset<node>::iterator jup,jlow,j;
-
-	while(!q.empty()){
-	
-		node tmp=q.front();q.pop();
-		if(exist[tmp.id]){
-			ans++;
-			exist[tmp.id]=false;
-			l=mines[tmp.id].x-tmp.d,r=mines[tmp.id].x+tmp.d;
-			//
-			l=l<0?1:l;
-			cout<<l<<" lr "<<r<<endl;
-			if(r>xi.size()){
-				r=xi.size();
-			}
-			for(int i=l;i<=r;i++){
-				it=mpx.find(i);
-				dy=mines[tmp.id].d-it->first;
-				//
-				cout<<it->first<<" "<<it->second<<endl;
-				jlow=s[i].lower_bound(tmp.y-dy);
-				jup=s[i].lower_bound(tmp.y+dy);
-				for(j=jlow;j!=jup;j++){
-					q.push(*j);
-				}	
-				s[i].erase(jlow,jup);
-			}
-		}
-	}
-	printf("%d\n",ans);
+       // printf("x's left to right %d %d\n",lx,rx);
+        lx=lower_bound(xi.begin(), xi.end(), lx)-xi.begin();
+        rx=upper_bound(xi.begin(), xi.end(), rx)-xi.begin();
+        //printf("in set S's left to right %d %d\n",lx,rx);
+        for(int i=lx;i<rx;i++){
+            dy=mines[tmp].d-abs(mines[tmp].x-xi[i]);
+        //    printf("i=%d, x=%d, dy=%d\n",i,xi[i],dy);
+            ly=mines[tmp].y-dy;
+            ry=mines[tmp].y+dy;
+         //   printf("y's left to right %d %d\n",ly,ry);
+            l=s[i].lower_bound(ly);
+            r=s[i].upper_bound(ry);
+            for(it=l;it!=r;++it){
+                if(exist[it->id]){
+                    exist[it->id]=false;
+                    Q.push(it->id);//波及范围内的炸弹入队
+          //          printf("Q.push(%d)\n",it->id);
+                }
+            }
+            s[i].erase(l, r);
+        }
+    }
+    printf("%d\n",ans);
 }
 int main(){
-	int a,b,c;
-	while(cin>>n,n){
-		init();
-		for(int i=1;i<=n;i++){
-			scanf("%d%d%d",&a,&b,&c);
-			mines[i]=Mine(a,b,c,i);
-			xi.push_back(a);
-		}
-		sort(xi.begin(),xi.end());
-		xi.erase(unique(xi.begin(),xi.end()),xi.end());
-		int cnt=0;
-		for(int i=0;i<xi.size();i++){
-			mpx[xi[i]]=++cnt;
-		}
-		map<int,int>::iterator it;
-		for(it=mpx.begin();it!=mpx.end();++it){
-			cout<<it->first<<" "<<it->second<<endl;
-		}
-		for(int i=1;i<=n;i++){
-			int p=mpx[mines[i].x];
-			s[p].insert(node(mines[i].y,mines[i].d,mines[i].id));
-		}
-		cin>>m;
-		
-		for(int i=1;i<=m;i++){
-			scanf("%d",&a);
-			work(a);
-		}
-		
-		
-	}
-	return 0;
+    int a,b,c;
+    int count=0;
+    while(cin>>n,n){
+        init();
+        for(int i=1;i<=n;i++){
+            scanf("%d%d%d",&a,&b,&c);
+            mines[i]=Mine(a,b,c);
+            xi.push_back(a);
+        }
+        sort(xi.begin(),xi.end());
+        xi.erase(unique(xi.begin(),xi.end()),xi.end());
+        int cnt=0;
+        for(int i=0;i<xi.size();i++){
+            mpx[xi[i]]=cnt++;
+        }
+        map<int,int>::iterator it;
+        //for(it=mpx.begin();it!=mpx.end();++it){
+          //  cout<<it->first<<" "<<it->second<<endl;
+        //}
+        for(int i=1;i<=n;i++){
+            int p=mpx[mines[i].x];
+            s[p].insert(node(mines[i].y,i));
+        }
+        cin>>m;
+        printf("Case #%d:\n",++count);
+        for(int i=1;i<=m;i++){
+            scanf("%d",&a);
+            if(exist[a])
+            work(a);
+            else {
+                printf("0\n");
+            }
+        }
+        
+        
+    }
+    return 0;
 }

@@ -1,0 +1,119 @@
+//wa
+
+#include <cstdio>
+#include<iostream>
+#include<string>
+#include<cstring>
+#include <vector>
+#include <algorithm>
+using namespace std;
+const  int N=50000+5;
+const int K=11;
+
+int C[K][K][N];
+int n;
+
+int lowBit(int x){
+    return x&-x;
+}
+void modify(int a,int b,int pos,int val){
+    while(pos<=n){
+        C[a][b][pos]+=val;
+        pos+=lowBit(pos);
+    }
+}
+int getSum(int a,int b,int pos){
+    int sum=0;
+    while(pos>0){
+        sum+=C[a][b][pos];
+        pos-=lowBit(pos);
+    }
+    return sum;
+}
+
+int t[N];
+int main(){
+    int q;
+    int ch;
+    int a,b,k,c;
+    while(~scanf("%d",&n)){
+        memset(C, 0, sizeof C);
+        for(int i=1;i<=n;i++){
+            scanf("%d",t+i);
+        }
+        scanf("%d",&q);
+        for(int i=0;i<q;i++){
+            scanf("%d",&ch);
+            if(ch==1){
+                scanf("%d%d%d%d",&a,&b,&k,&c);
+                a--;
+                b--;
+                
+                    modify(k, a%k, a/k+1, c);
+                    modify(k, a%k, b/k+2, -c);
+                
+            }
+            else{
+                scanf("%d",&a);
+                int sum=0;
+                for(int j=1;j<K;j++){
+                    sum+=getSum(j, (a-1)%j, (a-1)/j+1);
+                }
+                printf("%d\n",t[a]+sum);
+            }
+        }
+    }
+    return 0;
+}
+//ac
+int n,m;
+int c[12][12][maxn];
+int lowBit(int x){
+    return x&-x;
+}
+void modify(int k,int s,int pos,int val){
+    while(pos<n){//因为少了“＝”，所以一直wa
+        c[k][s][pos]+=val;
+        pos+=lowBit(pos);
+    }
+}
+int getR(int k,int s,int pos){
+    int sum=0;
+    while(pos>0){
+        sum+=c[k][s][pos];
+        pos-=lowBit(pos);
+    }
+    return sum;
+}
+int main(){
+    int num[maxn];
+    while (cin>>n) {
+        memset(c,0,sizeof(c));
+        for(int i=1;i<=n;i++)scanf("%d",num+i);
+        cin>>m;
+        int q,a,b,k,val;
+        for(int i=0;i<m;i++){
+            scanf("%d",&q);
+            if(q==1){
+                scanf("%d%d%d%d",&a,&b,&k,&val);
+                a--;
+                b--;
+                int s=a%k;
+                int x=(b-a)/k;
+                //x=a+x*k;
+                modify(k,s,a/k+1,val);
+                modify(k,s,a/k+x+2,-val);
+            }
+            else{
+                scanf("%d",&a);
+                int sum=num[a];
+                a--;
+                for(int k=1;k<=10;k++){
+                    sum+=getR(k,a%k,a/k+1);
+                }
+                printf("%d\n",sum);
+            }
+        }
+    }
+    return 0;
+}

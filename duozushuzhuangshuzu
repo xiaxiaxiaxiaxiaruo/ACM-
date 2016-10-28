@@ -51,7 +51,8 @@ int main(){
                 
                     modify(k, a%k, a/k+1, c);
                     modify(k, a%k, b/k+2, -c);
-                
+                                   //b>=a+mk shi ok
+                                   //b<a+mk but b/k=a/k+m is wrong
             }
             else{
                 scanf("%d",&a);

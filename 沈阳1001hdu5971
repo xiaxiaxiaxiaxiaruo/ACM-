@@ -7,7 +7,8 @@
 using namespace std;
 //hao 1  huai 2
 int mem[10010];
-vector<int>a[10010];
+vector<int>a[10010*2];
+//找错一下午，最后他妈想起来数组该开两倍
 int n,m,x,y;
 int solve(int x,int c);
 int main(){

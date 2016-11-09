@@ -1,0 +1,69 @@
+set autoindent
+set cindent
+set bg=dark
+syntax on
+set number
+set softtabstop=4
+set shiftwidth=4
+
+
+"自动补全
+:inoremap ( ()<ESC>i
+:inoremap { {<CR>}<ESC>O
+:inoremap [ []<ESC>i
+:inoremap " ""<ESC>i
+:inoremap ' ''<ESC>i
+":inoremap < <><ESC>i
+
+"自动插入头文件
+autocmd BufNewFile *.cpp,*.java,*.py exec ":call SetTitle()"
+
+func SetTitle()
+    if &filetype == 'python'
+    call setline(1,"#!/usr/bin/env python")
+    call append(line("."),"# coding=utf-8")
+    call append(line(".")+1, "") 
+    else 
+	call setline(1, "/*********************************************************")
+	call append(line("."), "    > File Name: ".expand("%")) 
+	call append(line(".")+1, "  > Author: Jing")
+	call append(line(".")+2, "  > Mail: ")
+	call append(line(".")+3, "  > Created Time: ".strftime("%c"))
+	call append(line(".")+4, " ***********************************************/")
+	call append(line(".")+5, "")
+    endif
+
+    if expand("%:e") == 'cpp'
+	call append(line(".")+6, "#include<iostream>")
+        call append(line(".")+7, "#include<cstdio>")
+	call append(line(".")+8, "#include<string>")
+	call append(line(".")+9, "#include<cstring>")
+	call append(line(".")+10, "#include<cmath>")
+	call append(line(".")+11, "#include<algorithm>")
+	call append(line(".")+12, "#include<vector>")
+	call append(line(".")+13, "#include<map>")
+	call append(line(".")+14, "#include<set>")
+	call append(line(".")+15, "#include<queue>")
+	call append(line(".")+16, "#include<stack>")
+	call append(line(".")+17, "using namespace std;")
+	call append(line(".")+18, "")
+	call append(line(".")+19, "const int N=100;")
+	call append(line(".")+20, "const int inf=0x3f3f3f3f;")
+	call append(line(".")+21, "")
+	call append(line(".")+22, "int main(){")
+	call append(line(".")+23, "")
+	call append(line(".")+24, " return 0;")
+	call append(line(".")+25, "}")
+    endif
+endfunc
+
+autocmd BufNewFile * normal G
+
+map <F5> :call CompileRunGcc()<CR>
+func! CompileRunGcc()
+    exec "w"
+    if &filetype == 'cpp' 
+    exec "!g++ % -o %<"
+    exec "!time ./%<"
+    endif
+endfunc

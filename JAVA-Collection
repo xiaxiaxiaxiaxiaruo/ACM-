@@ -1,0 +1,42 @@
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Scanner;
+import java.util.Vector;
+
+public class sss {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		Scanner read = new Scanner(System.in);
+		Map mp = new HashMap();
+		Vector<String> V = new Vector<String>();
+		ArrayDeque<Integer> S = new ArrayDeque<Integer>();
+		PriorityQueue<Integer> Q = new PriorityQueue<Integer>();
+		Collection c = new Vector();
+		Collection d = new Vector();
+		d.add(1);
+		d.add(2);
+
+		c.add(d);
+		c.add(d);
+
+		c.addAll(d);
+
+		System.out.println(c);
+		System.out.println(c);
+		
+		String s;
+		while(read.hasNext()){
+			s=read.next();
+			V.add(s);
+		}
+		System.out.println(V);
+	}
+
+}
